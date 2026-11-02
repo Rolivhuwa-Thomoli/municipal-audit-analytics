@@ -29,7 +29,7 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 ## Progress
 
 1. **Data pull** (`src/pull_data.py`): done.
-2. **Fabric load** (`fabric/01_load_raw_to_lakehouse.ipynb`): Parquet files in `Files/raw/` become `raw_*` Delta tables.
+2. **Fabric load** (`fabric/01_load_raw_to_lakehouse.ipynb`): done. Parquet files in `Files/raw/` become `raw_*` Delta tables, row counts reconciled to source.
 3. **EDA step 1: missingness** (`src/eda_01_missingness.py`): done. Key finding: missing audited statements are strongly linked to poor audit opinions (38% of outstanding audits against 1.8% of clean audits, chi-square p < 0.001). The gaps are not random, and they are themselves a risk signal.
 4. Next: cleaning decisions, feature engineering, risk model, Power BI dashboard.
 
@@ -38,3 +38,7 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 | Workspace on trial capacity | Load notebook |
 |---|---|
 | ![workspace](docs/screenshots/02_fabric_workspace_trial_capacity.png) | ![notebook](docs/screenshots/03_fabric_load_notebook.png) |
+
+Spark SQL check after the load: 81 year-by-opinion rows, matching the source exactly.
+
+![SQL check](docs/screenshots/04_fabric_sql_check.png)
