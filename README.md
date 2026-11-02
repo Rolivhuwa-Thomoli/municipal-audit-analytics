@@ -17,7 +17,29 @@ Audit-risk analytics on South African municipal finance data, built as a hands-o
 | Unqualified with findings | 2.7% |
 | Unqualified (clean) | 1.8% |
 
-Chi-square test of missingness against audit opinion: 163.7, p < 0.001, across 1,799 municipality-years. That rules out deleting incomplete records (complete-case analysis is only unbiased when data is missing completely at random; Rubin 1976), because doing so would drop the very municipalities an auditor most needs to see.
+### Chi-square tests of independence: missingness vs audit opinion
+
+H₀: whether a record is missing is independent of the audit opinion. If the data were missing completely at random (MCAR), H₀ would hold.
+
+| Table and gap tested | n | χ² | df | p-value | Cramér's V | Permutation p |
+|---|---|---|---|---|---|---|
+| Income & expenditure: no audited statements (2018–2024) | 1,799 municipality-years | 163.7 | 5 | 1.6 × 10⁻³³ | 0.30 | < 0.001 |
+| Balance sheet: no audited statements (2018–2024) | 1,799 municipality-years | 166.3 | 5 | 4.6 × 10⁻³⁴ | 0.30 | < 0.001 |
+| Aged debtors: no audited figures (2020–2024) | 1,285 municipality-years | 62.7 | 5 | 3.4 × 10⁻¹² | 0.22 | < 0.001 |
+| Irregular & wasteful expenditure: blank amount (2012–2017) | 4,833 amounts | 452.6 | 5 | 1.4 × 10⁻⁹⁵ | 0.31 | < 0.001 |
+
+All four reject H₀, with moderate effect sizes (Cramér's V 0.22–0.31). The direction differs, and that difference matters:
+
+- **Audited statements:** missing far more often for poor or outstanding audits, so the gap signals risk.
+- **Irregular & wasteful expenditure:** blanks are most common for **clean** audits (51.9%, against 10.8% for qualified audits). This fits "blank meant nothing to report": from 2018 Treasury records zeros instead of blanks.
+
+**Checks on the test's assumptions:**
+- *Small expected counts:* the two statement tests have 17% of cells with an expected count below 5. That is within Cochran's 20% rule. A 2,000-draw permutation test, which doesn't depend on that rule, gives the same answer.
+- *Independence:* each municipality appears in several years, so the observations are not fully independent and the p-values are somewhat optimistic. The size of the gaps (38% against 1.8%) leaves no doubt about the conclusion. Later modelling will account for this clustering.
+
+Code: `src/eda_02_chisquare_missingness.py`.
+
+These results rule out deleting incomplete records (complete-case analysis is only unbiased when data is missing completely at random; Rubin 1976), because doing so would drop the very municipalities an auditor most needs to see.
 
 ## Stack
 
@@ -45,7 +67,7 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 
 1. **Data pull** (`src/pull_data.py`): done.
 2. **Fabric load** (`fabric/01_load_raw_to_lakehouse.ipynb`): done. Parquet files in `Files/raw/` become `raw_*` Delta tables, row counts reconciled to source.
-3. **EDA step 1: missingness** (`src/eda_01_missingness.py`): done. Key finding: missing audited statements are strongly linked to poor audit opinions (38% of outstanding audits against 1.8% of clean audits, chi-square p < 0.001). The gaps are not random, and they are themselves a risk signal.
+3. **EDA step 1: missingness** (`src/eda_01_missingness.py`, `src/eda_02_chisquare_missingness.py`): done. Key finding: missing audited statements are strongly linked to poor audit opinions (38% of outstanding audits against 1.8% of clean audits, chi-square p < 0.001). The gaps are not random, and they are themselves a risk signal.
 4. Next: cleaning decisions, feature engineering, risk model, Power BI dashboard.
 
 ## Fabric screenshots
