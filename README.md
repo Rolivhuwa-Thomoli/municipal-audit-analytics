@@ -4,6 +4,21 @@ Audit-risk analytics on South African municipal finance data, built as a hands-o
 
 **Question:** which financial and reporting signals flag a municipality at risk of a poor audit outcome?
 
+## Key finding so far
+
+> **The gaps in this data are not random.** Municipalities with worse audit outcomes are far more likely to be missing their audited financial statements. In audit terms, the missingness is itself a risk signal.
+
+| Audit opinion (2018–2024) | Municipality-years with no audited financial statements |
+|---|---|
+| Outstanding (audit not finalised) | 38.0% |
+| Disclaimer | 9.9% |
+| Adverse | 9.3% |
+| Qualified | 6.6% |
+| Unqualified with findings | 2.7% |
+| Unqualified (clean) | 1.8% |
+
+Chi-square test of missingness against audit opinion: 163.7, p < 0.001, across 1,799 municipality-years. That rules out deleting incomplete records (complete-case analysis is only unbiased when data is missing completely at random; Rubin 1976), because doing so would drop the very municipalities an auditor most needs to see.
+
 ## Stack
 
 | Layer | Tool | Why |
