@@ -77,7 +77,7 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 1. **Data pull** (`src/pull_data.py`): done.
 2. **Fabric load** (`fabric/01_load_raw_to_lakehouse.ipynb`): done. Parquet files in `Files/raw/` become `raw_*` Delta tables, row counts reconciled to source.
 3. **EDA step 1: missingness** (`src/eda_01_missingness.py`, `src/eda_02_chisquare_missingness.py`): done. Key finding: missing audited statements are strongly linked to poor audit opinions (38% of outstanding audits against 1.8% of clean audits, chi-square p < 0.001). The gaps are not random, and they are themselves a risk signal.
-4. **Cleaning** (`fabric/02_clean_panel.ipynb`): builds `clean_*` tables and a municipality-year panel, applying the data decisions above, with reconciliation checks. No rows deleted; `mscoa_era` flags 2018+.
+4. **Cleaning** (`fabric/02_clean_panel.ipynb`): builds `clean_*` tables and a municipality-year panel, applying the data decisions above, with 7 reconciliation checks, all passing in Fabric. No rows deleted; `mscoa_era` flags 2018+.
 5. Next: outliers and anomalies, feature engineering, risk model, Power BI dashboard.
 
 ## Fabric screenshots
@@ -89,3 +89,7 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 Spark SQL check after the load: 81 year-by-opinion rows, matching the source exactly.
 
 ![SQL check](docs/screenshots/04_fabric_sql_check.png)
+
+Cleaning notebook: all 7 reconciliation checks pass (no rows lost, no duplicates, every blank flagged, expenditure total unchanged at R823.4 billion).
+
+![Cleaning checks](docs/screenshots/05_fabric_cleaning_checks_pass.png)
