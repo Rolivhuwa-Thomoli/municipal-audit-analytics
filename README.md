@@ -41,6 +41,13 @@ Code: `src/eda_02_chisquare_missingness.py`.
 
 These results rule out deleting incomplete records (complete-case analysis is only unbiased when data is missing completely at random; Rubin 1976), because doing so would drop the very municipalities an auditor most needs to see.
 
+## Data decisions
+
+| Issue | Decision | Why |
+|---|---|---|
+| Missing audited financial statements | Keep as a "did not submit audited statements" risk flag | This is a predictive model, and the missingness is informative (Sperrin et al. 2020). No causal claims are made from it (Groenwold et al. 2012) |
+| Blank irregular-expenditure amounts (2012–2017) | Recode to zero, keep a `was_blank` flag | Treasury switched from blanks to zeros in 2018 (blank and zero rates add to a steady 17–32% each year), and blanks are most common in clean audits. Imputing would invent spending for municipalities that probably had none. Dropping would remove mostly clean municipalities and skew the data towards bad ones |
+
 ## Stack
 
 | Layer | Tool | Why |
