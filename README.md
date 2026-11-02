@@ -46,6 +46,8 @@ These results rule out deleting incomplete records (complete-case analysis is on
 | Issue | Decision | Why |
 |---|---|---|
 | Missing audited financial statements | Keep as a "did not submit audited statements" risk flag | This is a predictive model, and the missingness is informative (Sperrin et al. 2020). No causal claims are made from it (Groenwold et al. 2012) |
+| Year range | Keep all years in cleaned tables; each analysis applies its own filter | Don't delete rows until needed. Financial line items are only comparable from 2018 (mSCOA), while audit and expenditure history goes back to 2011/2012 |
+| Province codes | Merge KZ into KZN and LIM into LP | The source table used two codes for the same province |
 | Blank irregular-expenditure amounts (2012–2017) | Recode to zero, keep a `was_blank` flag | Treasury switched from blanks to zeros in 2018 (blank and zero rates add to a steady 17–32% each year), and blanks are most common in clean audits. Imputing would invent spending for municipalities that probably had none. Dropping would remove mostly clean municipalities and skew the data towards bad ones |
 
 ## Stack
@@ -75,7 +77,8 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 1. **Data pull** (`src/pull_data.py`): done.
 2. **Fabric load** (`fabric/01_load_raw_to_lakehouse.ipynb`): done. Parquet files in `Files/raw/` become `raw_*` Delta tables, row counts reconciled to source.
 3. **EDA step 1: missingness** (`src/eda_01_missingness.py`, `src/eda_02_chisquare_missingness.py`): done. Key finding: missing audited statements are strongly linked to poor audit opinions (38% of outstanding audits against 1.8% of clean audits, chi-square p < 0.001). The gaps are not random, and they are themselves a risk signal.
-4. Next: cleaning decisions, feature engineering, risk model, Power BI dashboard.
+4. **Cleaning** (`fabric/02_clean_panel.ipynb`): builds `clean_*` tables and a municipality-year panel, applying the data decisions above, with reconciliation checks. No rows deleted; `mscoa_era` flags 2018+.
+5. Next: outliers and anomalies, feature engineering, risk model, Power BI dashboard.
 
 ## Fabric screenshots
 
