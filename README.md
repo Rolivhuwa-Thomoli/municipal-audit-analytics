@@ -83,7 +83,9 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 4. **Cleaning** (`fabric/02_clean_panel.ipynb`): builds `clean_*` tables and a municipality-year panel, applying the data decisions above, with 7 reconciliation checks, all passing in Fabric. No rows deleted; `mscoa_era` flags 2018+.
 5. **EDA step 2: outliers** (`src/eda_03_outliers.py`): done. Two 2012 capture errors alone added R223 billion (27% of all irregular, fruitless and unauthorised expenditure); 2018 is unreliable for many municipalities; Benford's law shows no systematic manipulation.
 6. **Curated layer** (`fabric/03_outliers_curated.ipynb`): applies the outlier decisions and writes `curated_*` tables plus an outlier log (28 entries), with 7 reconciliation checks, all passing in Fabric.
-7. Next: feature engineering, risk model, Power BI dashboard.
+7. **Target:** next year's audit opinion, **reliable** (unqualified, unqualified with findings, qualified) vs **non-reliable** (adverse, disclaimer, outstanding). This mirrors ISA 705's pervasive opinions. 2020–2024: 1,112 reliable vs 173 non-reliable.
+8. **Features** (`fabric/04_features.ipynb`): 25 features across audit history, reporting discipline, irregular expenditure, liquidity, debt collection, spending structure and context. No leakage: features use year *t*, the label is year *t+1*. No manual selection: regularisation decides.
+9. Next: model, Power BI dashboard.
 
 ## Fabric screenshots
 
