@@ -41,6 +41,30 @@ Code: `src/eda_02_chisquare_missingness.py`.
 
 These results rule out deleting incomplete records (complete-case analysis is only unbiased when data is missing completely at random; Rubin 1976), because doing so would drop the very municipalities an auditor most needs to see.
 
+## Exploratory data analysis charts
+
+Code: `src/eda_04_visuals.py`. Each chart shows one EDA finding that shaped a data decision.
+
+**1. Missingness is linked to the audit opinion** (missing data is not random, so incomplete records are kept and flagged).
+
+![Missing statements by opinion](docs/eda/01_missing_statements_by_opinion.png)
+
+**2. Blank irregular-expenditure amounts stop in 2018, when zeros start** (blanks before 2018 are recoded to zero with a flag).
+
+![Blank vs zero by year](docs/eda/02_uifw_blank_vs_zero_by_year.png)
+
+**3. Outlier screen with the robust z-score** (|z| > 3.5; each flagged year was checked by hand and set to missing with a flag).
+
+![Robust z-score outliers](docs/eda/03_robust_z_outliers.png)
+
+**4. Benford's law** (first digits conform closely, so there is no sign of systematic manipulation).
+
+![Benford's law](docs/eda/04_benford_first_digit.png)
+
+**5. Serial correlation of audit outcomes** (this year's opinion is the strongest predictor of next year's).
+
+![Serial correlation](docs/eda/05_serial_correlation_next_year.png)
+
 ## Model results (test years 2022–2023, never seen in training)
 
 514 municipality-years, 55 of them non-reliable the following year (10.7%, so random guessing scores a PR-AUC of about 0.11).
@@ -128,7 +152,8 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 8. **Features** (`fabric/04_features.ipynb`): 25 features across audit history, reporting discipline, irregular expenditure, liquidity, debt collection, spending structure and context. No leakage: features use year *t*, the label is year *t+1*. No manual selection: regularisation decides.
 9. **Model** (`fabric/05_model.ipynb`): penalised logistic regression (ridge, lasso or elastic net, chosen by validation) vs gradient boosting (LightGBM), both against a "same as this year" baseline. Time-based testing: learn from 2019–2021, test on 2022–2023, with forward-chaining tuning folds. Main score: PR-AUC.
 10. **Results:** see Model results above. Logistic regression performs best (PR-AUC 0.61 vs 0.55 for boosting and 0.46 for the baseline).
-11. Next: Power BI dashboard.
+11. **EDA charts** (`src/eda_04_visuals.py`): one chart per EDA finding, shown above.
+12. Next: Power BI dashboard (semantic model done).
 
 ## Fabric screenshots
 
