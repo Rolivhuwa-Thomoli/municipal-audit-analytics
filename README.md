@@ -76,6 +76,12 @@ These results rule out deleting incomplete records (complete-case analysis is on
 
 ![MLflow training accuracy](docs/screenshots/08_fabric_mlflow_training_accuracy.png)
 
+## Power BI semantic model
+
+A Direct Lake semantic model reads the Lakehouse tables directly. Each municipality in `clean_municipalities` links (one-to-many, on `demarcation_code`) to its yearly panel, its model predictions and its outlier log entries.
+
+![Semantic model](docs/screenshots/09_semantic_model.png)
+
 ## Data decisions
 
 | Issue | Decision | Why |
