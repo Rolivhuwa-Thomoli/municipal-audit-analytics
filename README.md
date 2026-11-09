@@ -41,6 +41,41 @@ Code: `src/eda_02_chisquare_missingness.py`.
 
 These results rule out deleting incomplete records (complete-case analysis is only unbiased when data is missing completely at random; Rubin 1976), because doing so would drop the very municipalities an auditor most needs to see.
 
+## Model results (test years 2022–2023, never seen in training)
+
+514 municipality-years, 55 of them non-reliable the following year (10.7%, so random guessing scores a PR-AUC of about 0.11).
+
+| Model | PR-AUC | ROC-AUC | Recall | Precision | Flagged |
+|---|---|---|---|---|---|
+| Baseline: next year same as this year | 0.464 | 0.813 | 67% | 64% | 58 |
+| **Penalised logistic regression** | **0.609** | **0.905** | **71%** | 62% | 63 |
+| Gradient boosting (LightGBM) | 0.554 | 0.898 | 64% | 64% | 55 |
+
+**Logistic regression wins.** Both models beat the persistence baseline, but the simpler model generalises better:
+- **Small data.** 771 training rows with 118 non-reliable cases is too few for boosting to learn interactions without memorising. Its training accuracy (MLflow) climbs to 1.0, which is classic overfitting.
+- **Boosting learned noise.** In permutation importance on the test years, boosting gets *negative* importance for irregular expenditure %, unauthorised %, the irregular trend and debtors over 90 days. Shuffling those features made it better, so the patterns it learned there don't carry over to new years. Logistic regression gets value from irregular expenditure % (third most important).
+- **Mostly straight-line effects.** The strongest drivers (recent audit history, irregular spend share, liquidity) push risk in one direction, which suits a penalised linear model.
+
+**What drives the predictions** (permutation importance, drop in PR-AUC when shuffled):
+
+| Logistic regression | | Gradient boosting | |
+|---|---|---|---|
+| Non-reliable count, last 3 years | 0.052 | Current opinion rank | 0.089 |
+| Non-reliable this year | 0.046 | Non-reliable count, last 3 years | 0.074 |
+| Irregular expenditure % | 0.033 | Grant dependence | 0.023 |
+| Opinion trend | 0.025 | Province | 0.015 |
+| Current opinion rank | 0.018 | Non-reliable this year | 0.014 |
+| Current ratio (liquidity) | 0.015 | Cash coverage | 0.008 |
+
+**Takeaways for audit planning:**
+- **History dominates.** Outcomes are sticky, and a municipality with recent non-reliable opinions is the strongest flag.
+- **Irregular expenditure and liquidity add signal on top of history.** These are the financial early-warning indicators.
+- **Missing audited statements add almost nothing once history is known**, even though they are strongly associated with poor opinions (χ² = 163.7). Municipalities that don't submit usually already have disclaimers or outstanding audits, so the signal is already captured. Association is not the same as *extra* predictive value.
+- **Recall fell short of the 80% target** (71%) because the cut-off was set on training years, where models look better than on new years. The reported numbers are the honest, out-of-time ones.
+- **Caveat:** with 55 positive cases in the test years, importance estimates are noisy, and correlated features (the audit-history group) share credit.
+
+![MLflow training accuracy](docs/screenshots/08_fabric_mlflow_training_accuracy.png)
+
 ## Data decisions
 
 | Issue | Decision | Why |
@@ -86,7 +121,8 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 7. **Target:** next year's audit opinion, **reliable** (unqualified, unqualified with findings, qualified) vs **non-reliable** (adverse, disclaimer, outstanding). This mirrors ISA 705's pervasive opinions. 2020–2024: 1,112 reliable vs 173 non-reliable.
 8. **Features** (`fabric/04_features.ipynb`): 25 features across audit history, reporting discipline, irregular expenditure, liquidity, debt collection, spending structure and context. No leakage: features use year *t*, the label is year *t+1*. No manual selection: regularisation decides.
 9. **Model** (`fabric/05_model.ipynb`): penalised logistic regression (ridge, lasso or elastic net, chosen by validation) vs gradient boosting (LightGBM), both against a "same as this year" baseline. Time-based testing: learn from 2019–2021, test on 2022–2023, with forward-chaining tuning folds. Main score: PR-AUC.
-10. Next: Power BI dashboard.
+10. **Results:** see Model results above. Logistic regression wins (PR-AUC 0.61 vs 0.55 for boosting and 0.46 for the baseline).
+11. Next: Power BI dashboard.
 
 ## Fabric screenshots
 
