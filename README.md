@@ -104,3 +104,7 @@ Cleaning notebook: all 7 reconciliation checks pass (no rows lost, no duplicates
 Curated layer: all 7 outlier checks pass. Every rand is accounted for: R823.4bn before = R600.5bn after + R222.9bn of confirmed errors set to missing.
 
 ![Outlier checks](docs/screenshots/06_fabric_outlier_checks_pass.png)
+
+Features: all 6 checks pass, including no label for the latest year (no peeking into the future).
+
+![Feature checks](docs/screenshots/07_fabric_features_checks_pass.png)
