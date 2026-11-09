@@ -85,7 +85,8 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 6. **Curated layer** (`fabric/03_outliers_curated.ipynb`): applies the outlier decisions and writes `curated_*` tables plus an outlier log (28 entries), with 7 reconciliation checks, all passing in Fabric.
 7. **Target:** next year's audit opinion, **reliable** (unqualified, unqualified with findings, qualified) vs **non-reliable** (adverse, disclaimer, outstanding). This mirrors ISA 705's pervasive opinions. 2020–2024: 1,112 reliable vs 173 non-reliable.
 8. **Features** (`fabric/04_features.ipynb`): 25 features across audit history, reporting discipline, irregular expenditure, liquidity, debt collection, spending structure and context. No leakage: features use year *t*, the label is year *t+1*. No manual selection: regularisation decides.
-9. Next: model, Power BI dashboard.
+9. **Model** (`fabric/05_model.ipynb`): penalised logistic regression (ridge, lasso or elastic net, chosen by validation) vs gradient boosting (LightGBM), both against a "same as this year" baseline. Time-based testing: learn from 2019–2021, test on 2022–2023, with forward-chaining tuning folds. Main score: PR-AUC.
+10. Next: Power BI dashboard.
 
 ## Fabric screenshots
 
