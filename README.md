@@ -82,7 +82,7 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 3. **EDA step 1: missingness** (`src/eda_01_missingness.py`, `src/eda_02_chisquare_missingness.py`): done. Key finding: missing audited statements are strongly linked to poor audit opinions (38% of outstanding audits against 1.8% of clean audits, chi-square p < 0.001). The gaps are not random, and they are themselves a risk signal.
 4. **Cleaning** (`fabric/02_clean_panel.ipynb`): builds `clean_*` tables and a municipality-year panel, applying the data decisions above, with 7 reconciliation checks, all passing in Fabric. No rows deleted; `mscoa_era` flags 2018+.
 5. **EDA step 2: outliers** (`src/eda_03_outliers.py`): done. Two 2012 capture errors alone added R223 billion (27% of all irregular, fruitless and unauthorised expenditure); 2018 is unreliable for many municipalities; Benford's law shows no systematic manipulation.
-6. **Curated layer** (`fabric/03_outliers_curated.ipynb`): applies the outlier decisions and writes `curated_*` tables plus an outlier log, with 7 reconciliation checks.
+6. **Curated layer** (`fabric/03_outliers_curated.ipynb`): applies the outlier decisions and writes `curated_*` tables plus an outlier log (28 entries), with 7 reconciliation checks, all passing in Fabric.
 7. Next: feature engineering, risk model, Power BI dashboard.
 
 ## Fabric screenshots
@@ -98,3 +98,7 @@ Spark SQL check after the load: 81 year-by-opinion rows, matching the source exa
 Cleaning notebook: all 7 reconciliation checks pass (no rows lost, no duplicates, every blank flagged, expenditure total unchanged at R823.4 billion).
 
 ![Cleaning checks](docs/screenshots/05_fabric_cleaning_checks_pass.png)
+
+Curated layer: all 7 outlier checks pass. Every rand is accounted for: R823.4bn before = R600.5bn after + R222.9bn of confirmed errors set to missing.
+
+![Outlier checks](docs/screenshots/06_fabric_outlier_checks_pass.png)
