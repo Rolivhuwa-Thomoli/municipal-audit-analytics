@@ -51,10 +51,10 @@ These results rule out deleting incomplete records (complete-case analysis is on
 | **Penalised logistic regression** | **0.609** | **0.905** | **71%** | 62% | 63 |
 | Gradient boosting (LightGBM) | 0.554 | 0.898 | 64% | 64% | 55 |
 
-**Logistic regression wins.** Both models beat the persistence baseline, but the simpler model generalises better:
-- **Small data.** 771 training rows with 118 non-reliable cases is too few for boosting to learn interactions without memorising. Its training accuracy (MLflow) climbs to 1.0, which is classic overfitting.
-- **Boosting learned noise.** In permutation importance on the test years, boosting gets *negative* importance for irregular expenditure %, unauthorised %, the irregular trend and debtors over 90 days. Shuffling those features made it better, so the patterns it learned there don't carry over to new years. Logistic regression gets value from irregular expenditure % (third most important).
-- **Mostly straight-line effects.** The strongest drivers (recent audit history, irregular spend share, liquidity) push risk in one direction, which suits a penalised linear model.
+**Logistic regression performs best.** Both models outperform the baseline, but the simpler model generalises better to new years:
+- **Small training sample.** 771 training rows with 118 non-reliable cases are too few for boosting to learn interactions reliably. Its training accuracy (recorded in MLflow) reaches 1.0, which indicates overfitting: the model fits the training data closely but does not generalise as well to new years.
+- **Patterns that did not generalise.** Permutation importance measures how much the test PR-AUC falls when one feature's values are randomly shuffled. For boosting, irregular expenditure %, unauthorised %, the irregular trend and debtors over 90 days have *negative* importance: the model scored slightly better when these features were shuffled. The relationships it learned from them in the training years did not hold in the test years. Logistic regression, in contrast, gains from irregular expenditure % (its third most important feature).
+- **Mainly linear (monotonic) relationships.** The strongest predictors (recent audit history, irregular expenditure share, liquidity) change the risk in one direction only, which suits a penalised linear model.
 
 **What drives the predictions** (permutation importance, drop in PR-AUC when shuffled):
 
@@ -68,11 +68,11 @@ These results rule out deleting incomplete records (complete-case analysis is on
 | Current ratio (liquidity) | 0.015 | Cash coverage | 0.008 |
 
 **Takeaways for audit planning:**
-- **History dominates.** Outcomes are sticky, and a municipality with recent non-reliable opinions is the strongest flag.
-- **Irregular expenditure and liquidity add signal on top of history.** These are the financial early-warning indicators.
-- **Missing audited statements add almost nothing once history is known**, even though they are strongly associated with poor opinions (χ² = 163.7). Municipalities that don't submit usually already have disclaimers or outstanding audits, so the signal is already captured. Association is not the same as *extra* predictive value.
-- **Recall fell short of the 80% target** (71%) because the cut-off was set on training years, where models look better than on new years. The reported numbers are the honest, out-of-time ones.
-- **Caveat:** with 55 positive cases in the test years, importance estimates are noisy, and correlated features (the audit-history group) share credit.
+- **Audit history is the strongest predictor.** Consecutive outcomes for the same municipality are strongly correlated (serial correlation; phi = 0.64 for 2019–2023). Of municipalities with a non-reliable opinion, 63% had a non-reliable opinion again the next year, against 4% of those with a reliable opinion.
+- **Irregular expenditure and liquidity add predictive value beyond audit history.** They are the financial early-warning indicators.
+- **Missing audited statements add almost nothing once history is known**, even though they are strongly associated with poor opinions (χ² = 163.7). Municipalities that do not submit statements usually already have a disclaimer or an outstanding audit, so this information is already contained in the audit-history features. A strong association does not guarantee additional predictive value.
+- **Recall fell short of the 80% target** (71%) because the cut-off was set on training years, where models perform better than on new years. The reported figures are measured on years the models never saw.
+- **Caveat:** with 55 positive cases in the test years, importance estimates are noisy, and correlated features (the audit-history group) share their importance between them. No significance test was applied to the importance values.
 
 ![MLflow training accuracy](docs/screenshots/08_fabric_mlflow_training_accuracy.png)
 
@@ -121,7 +121,7 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 7. **Target:** next year's audit opinion, **reliable** (unqualified, unqualified with findings, qualified) vs **non-reliable** (adverse, disclaimer, outstanding). This mirrors ISA 705's pervasive opinions. 2020–2024: 1,112 reliable vs 173 non-reliable.
 8. **Features** (`fabric/04_features.ipynb`): 25 features across audit history, reporting discipline, irregular expenditure, liquidity, debt collection, spending structure and context. No leakage: features use year *t*, the label is year *t+1*. No manual selection: regularisation decides.
 9. **Model** (`fabric/05_model.ipynb`): penalised logistic regression (ridge, lasso or elastic net, chosen by validation) vs gradient boosting (LightGBM), both against a "same as this year" baseline. Time-based testing: learn from 2019–2021, test on 2022–2023, with forward-chaining tuning folds. Main score: PR-AUC.
-10. **Results:** see Model results above. Logistic regression wins (PR-AUC 0.61 vs 0.55 for boosting and 0.46 for the baseline).
+10. **Results:** see Model results above. Logistic regression performs best (PR-AUC 0.61 vs 0.55 for boosting and 0.46 for the baseline).
 11. Next: Power BI dashboard.
 
 ## Fabric screenshots
