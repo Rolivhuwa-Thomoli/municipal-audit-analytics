@@ -4,6 +4,19 @@ Audit-risk analytics on South African municipal finance data, built as a hands-o
 
 **Question:** which financial and reporting signals flag a municipality at risk of a poor audit outcome?
 
+## At a glance
+
+| | |
+|---|---|
+| **Goal** | Predict whether the Auditor-General's next opinion on a municipality will show that its financial statements cannot be relied on (adverse, disclaimer or outstanding audit) |
+| **Data** | 3,688 audit opinions, 10,314 irregular, fruitless and unauthorised expenditure records, about 705,000 rows of audited financial data (National Treasury Municipal Money API) |
+| **Pipeline** | Microsoft Fabric Lakehouse: raw → clean → curated → features → model tables in 5 Spark notebooks, with 26 automated reconciliation checks |
+| **Model** | Penalised logistic regression vs gradient boosting (LightGBM), time-based validation, tracked in MLflow |
+| **Result** | On unseen years (2022–2023), logistic regression caught 71% of non-reliable outcomes, PR-AUC 0.61 against 0.46 for a "same as this year" baseline |
+| **Reporting** | Power BI report on a Direct Lake semantic model with 12 DAX measures (in progress) |
+| **Status** | Data, EDA, model and semantic model complete; Power BI report pages and a step-by-step replication guide are being added |
+
+
 ## Key finding so far
 
 > **The gaps in this data are not random.** Municipalities with worse audit outcomes are far more likely to be missing their audited financial statements. In audit terms, the missingness is itself a risk signal.
@@ -153,7 +166,8 @@ Reproduce with `pip install -r requirements.txt && python src/pull_data.py data/
 9. **Model** (`fabric/05_model.ipynb`): penalised logistic regression (ridge, lasso or elastic net, chosen by validation) vs gradient boosting (LightGBM), both against a "same as this year" baseline. Time-based testing: learn from 2019–2021, test on 2022–2023, with forward-chaining tuning folds. Main score: PR-AUC.
 10. **Results:** see Model results above. Logistic regression performs best (PR-AUC 0.61 vs 0.55 for boosting and 0.46 for the baseline).
 11. **EDA charts** (`src/eda_04_visuals.py`): one chart per EDA finding, shown above.
-12. Next: Power BI dashboard (semantic model done).
+12. **Power BI** (in progress): Direct Lake semantic model with 12 DAX measures done; report page 1 (audit outcomes overview) built; pages 2–4 (risk watchlist, model performance, EDA and data quality) in progress.
+13. Next: step-by-step replication guide in `docs/replication-guide/`.
 
 ## Fabric screenshots
 
