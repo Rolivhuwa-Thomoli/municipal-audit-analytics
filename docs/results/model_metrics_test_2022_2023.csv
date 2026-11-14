@@ -1,0 +1,4 @@
+model,pr_auc,roc_auc,recall,precision,flagged,brier,threshold
+baseline: same as this year,0.464,0.813,0.673,0.638,58,0.076,
+logistic,0.609,0.905,0.709,0.619,63,0.09,0.717
+boosting,0.554,0.898,0.636,0.636,55,0.078,0.833
